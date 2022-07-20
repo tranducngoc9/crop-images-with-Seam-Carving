@@ -71,12 +71,14 @@ def carve_column(img):
     img = img[mask].reshape((r, c - 1, 3))
     return img
 
+#tìm một đường đi từ trên cùng của hình ảnh đến cuối hình ảnh với ít năng lượng nhất; các điểm phải được kết nối với nhau qua 1 cạch hoặc 1 góc
+
 def minimum_seam(img):
-    r, c, _ = img.shape
+    r, c, _ = img.shape  # (533,800.3)
     energy_map = calc_energy(img)
 
     M = energy_map.copy()
-    backtrack = np.zeros_like(M, dtype=int)
+    backtrack = np.zeros_like(M, dtype=int)  #Toàn bộ số 0 shape giống M
 
     for i in range(1, r):
         for j in range(0, c):
@@ -96,7 +98,7 @@ def minimum_seam(img):
 
 def main():
 
-    sys.argv = ["carver.py" , "c" , 0.5, "a.jpg" , ""crop.jpg"]
+    sys.argv = ["carver.py" , "c" , 0.5, "a.jpg" , "crop.jpg"]
     print(sys.argv[1])
     if len(sys.argv) != 5:
         print('usage: carver.py <r/c> <scale> <image_in> <image_out>', file=sys.stderr)
