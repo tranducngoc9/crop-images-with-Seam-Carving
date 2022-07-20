@@ -69,11 +69,8 @@ def carve_column(img):
     mask = np.stack([mask] * 3, axis=2)
     img = img[mask].reshape((r, c - 1, 3))
     return img
-img = imread("anh_goc.jpg")
-img = ca
-print(a)
-imwrite("a.jpg", a)
-imwrite("b.jpg",b)
-print(a.shape)
-print(b)
-print(b.shape)
+img = imread("canh_dong.jpg")
+
+img = calc_energy(img)
+imwrite("bac_hiu.jpg", img)
+

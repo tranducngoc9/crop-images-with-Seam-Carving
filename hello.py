@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-
-"""
-Usage: python carver.py <r/c> <scale> <image_in> <image_out>
-Copyright 2018 Karthik Karanth, MIT License
-"""
 
 from ctypes.wintypes import RGB
 import sys
@@ -55,11 +49,30 @@ def crop_r(img, scale_r):
     img = np.rot90(img, 3, (0, 1))
     return img
 
+
+def insert_c(img, scale_c):
+    temp = np.copy(img)
+    
+    r, c, _ = img.shape
+    new_c = int(scale_c * c)
+
+    for i in trange(new_c - c):
+        img = insert_carve_column(temp, img)
+        temp = carve_column(temp)
+    return img
+
+def insert_r(img, scale_r):
+    img = np.rot90(img, 1, (0, 1))
+    img = insert_c(img, scale_r)
+    img = np.rot90(img, 3, (0, 1))
+    return img
+
+
 def carve_column(img):
     r, c, _ = img.shape
 
     M, backtrack = minimum_seam(img)
-    mask = np.ones((r, c), dtype=bool)
+    mask = np.ones((r, c), dtype=np.bool)
 
     j = np.argmin(M[-1])
     for i in reversed(range(r)):
@@ -70,14 +83,40 @@ def carve_column(img):
     img = img[mask].reshape((r, c - 1, 3))
     return img
 
-#tìm một đường đi từ trên cùng của hình ảnh đến cuối hình ảnh với ít năng lượng nhất; các điểm phải được kết nối với nhau qua 1 cạch hoặc 1 góc
+
+def insert_carve_column(temp, img):
+    row, col, _ = img.shape
+
+    M, backtrack = minimum_seam(temp)
+    #mask = np.ones((row, col), dtype=np.bool)
+
+    j = np.argmin(M[-1])
+    output = np.zeros((row,col+1,3))
+       
+    for i in reversed(range(row)):
+
+        for ch in range(3):
+            if j == 0:
+                p = np.average(img[i, j: j + 2, ch])
+                output[i, j, ch] = img[i, j, ch]
+                output[i, j + 1, ch] = p
+                output[i, j + 1:, ch] = img[i, j:, ch]
+            else:
+                p = np.average(img[i, j - 1: j + 1, ch])
+                output[i, : j, ch] = img[i, : j, ch]
+                output[i, j, ch] = p
+                output[i, j + 1:, ch] = img[i, j:, ch]
+        
+        j = backtrack[i, j]
+    return output
+
 
 def minimum_seam(img):
-    r, c, _ = img.shape  # (533,800.3)
+    r, c, _ = img.shape
     energy_map = calc_energy(img)
 
     M = energy_map.copy()
-    backtrack = np.zeros_like(M, dtype=int)  #Toàn bộ số 0 shape giống M
+    backtrack = np.zeros_like(M, dtype=np.int)
 
     for i in range(1, r):
         for j in range(0, c):
@@ -96,13 +135,12 @@ def minimum_seam(img):
     return M, backtrack
 
 def main():
+    sys.argv = ["hello.py" , "insert_c" , 1.5, "canh_dong.jpg" , "canh_dong_scale.jpg"]
 
-    sys.argv = ["carver.py" , "r" , 0.5, "a.jpg" , "bac_hieu.jpg"]
-    print(sys.argv[1])
     if len(sys.argv) != 5:
         print('usage: carver.py <r/c> <scale> <image_in> <image_out>', file=sys.stderr)
         sys.exit(1)
-
+    
     which_axis = sys.argv[1]
     scale = float(sys.argv[2])
     in_filename = sys.argv[3]
@@ -110,10 +148,14 @@ def main():
 
     img = imread(in_filename)
 
-    if which_axis == 'r':
+    if which_axis == 'crop_r':
         out = crop_r(img, scale)
-    elif which_axis == 'c':
+    elif which_axis == 'crop_c':
         out = crop_c(img, scale)
+    elif which_axis == 'insert_r':
+        out = insert_r(img, scale)
+    elif which_axis == 'insert_c':
+        out = insert_c(img, scale)
     else:
         print('usage: carver.py <r/c> <scale> <image_in> <image_out>', file=sys.stderr)
         sys.exit(1)
@@ -122,7 +164,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
