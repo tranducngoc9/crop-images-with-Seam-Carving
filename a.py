@@ -33,12 +33,47 @@ def calc_energy(img):
     energy_map = convolved.sum(axis=2)
 
     return energy_map
+def minimum_seam(img):
+    r, c, _ = img.shape  # (533,800.3)
+    energy_map = calc_energy(img)
 
+    M = energy_map.copy()
+    backtrack = np.zeros_like(M, dtype=int)  #Toàn bộ số 0 shape giống M
+
+    for i in range(1, r):
+        for j in range(0, c):
+            # Handle the left edge of the image, to ensure we don't index a -1
+            if j == 0:
+                idx = np.argmin(M[i-1, j:j + 2])
+                backtrack[i, j] = idx + j
+                min_energy = M[i-1, idx + j]   #Tìm ra giá trị energy nhỏ nhất của mỗi hàng 
+            else:
+                idx = np.argmin(M[i - 1, j - 1:j + 2])
+                backtrack[i, j] = idx + j - 1
+                min_energy = M[i - 1, idx + j - 1]
+
+            M[i, j] += min_energy
+
+    return M, backtrack
+def carve_column(img):
+    r, c, _ = img.shape
+
+    M, backtrack = minimum_seam(img)
+    mask = np.ones((r, c), dtype=bool)
+
+    j = np.argmin(M[-1])
+    for i in reversed(range(r)):
+        mask[i, j] = False
+        j = backtrack[i, j]
+
+    mask = np.stack([mask] * 3, axis=2)
+    img = img[mask].reshape((r, c - 1, 3))
+    return img
 img = imread("anh_goc.jpg")
-energy_map = calc_energy(img)
-imwrite("energy_map.jpg", energy_map)
-M = energy_map.copy()
-print(energy_map.shape, M.shape)
-backtrack = np.zeros_like(M, dtype=int)
-print(backtrack)
-print(backtrack.shape)
+img = ca
+print(a)
+imwrite("a.jpg", a)
+imwrite("b.jpg",b)
+print(a.shape)
+print(b)
+print(b.shape)

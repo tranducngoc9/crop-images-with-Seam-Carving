@@ -98,7 +98,7 @@ def minimum_seam(img):
 
 def main():
 
-    sys.argv = ["carver.py" , "c" , 0.5, "a.jpg" , "crop.jpg"]
+    sys.argv = ["carver.py" , "c" , 0.5, "fat.jpg" , "fat_crop.jpg"]
     print(sys.argv[1])
     if len(sys.argv) != 5:
         print('usage: carver.py <r/c> <scale> <image_in> <image_out>', file=sys.stderr)
