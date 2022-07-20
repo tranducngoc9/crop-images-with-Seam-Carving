@@ -8,7 +8,6 @@ Copyright 2018 Karthik Karanth, MIT License
 from ctypes.wintypes import RGB
 import sys
 import cv2
-
 from tqdm import trange
 import numpy as np
 from imageio.v2 import imread, imwrite
@@ -98,7 +97,7 @@ def minimum_seam(img):
 
 def main():
 
-    sys.argv = ["carver.py" , "c" , 0.5, "fat.jpg" , "fat_crop.jpg"]
+    sys.argv = ["carver.py" , "c" , 0.5, "canh_dong.jpg" , "canh_dong_crop.jpg"]
     print(sys.argv[1])
     if len(sys.argv) != 5:
         print('usage: carver.py <r/c> <scale> <image_in> <image_out>', file=sys.stderr)
