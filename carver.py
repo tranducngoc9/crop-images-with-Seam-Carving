@@ -41,20 +41,7 @@ def calc_energy(img):
 
     return energy_map
 
-def crop_c(img, scale_c):
-    r, c, _ = img.shape
-    new_c = int(scale_c * c)
 
-    for i in trange(c - new_c):
-        img = carve_column(img)
-
-    return img
-
-def crop_r(img, scale_r):
-    img = np.rot90(img, 1, (0, 1))
-    img = crop_c(img, scale_r)
-    img = np.rot90(img, 3, (0, 1))
-    return img
 
 def carve_column(img):
     r, c, _ = img.shape
@@ -93,6 +80,21 @@ def minimum_seam(img):
             M[i, j] += min_energy
 
     return M, backtrack
+
+def crop_c(img, scale_c):
+    r, c, _ = img.shape
+    new_c = int(scale_c * c)
+
+    for i in trange(c - new_c):
+        img = carve_column(img)
+
+    return img
+
+def crop_r(img, scale_r):
+    img = np.rot90(img, 1, (0, 1))
+    img = crop_c(img, scale_r)
+    img = np.rot90(img, 3, (0, 1))
+    return img
 
 def main():
 
